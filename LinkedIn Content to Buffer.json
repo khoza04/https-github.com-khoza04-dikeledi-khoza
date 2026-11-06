@@ -1,0 +1,335 @@
+{
+  "name": "LinkedIn Content to Buffer",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "id": "7f5f9934-7ab8-43e9-a4cb-1583740a2e36",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        368,
+        240
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[{\n \"title\": \"AI as Your First Content Hire: Why Founders Shouldn't Wait to Outsource Creation\",\n            \"rationale\": \"Most solopreneurs delay content scaling because they think hiring a ghostwriter is the next step — but AI can handle 80% with proper systems. This shifts content from a creative bottleneck to a scalable growth lever.\",\n            \"hook\": \"Ghostwriters are outdated. Train GPT once, and it ships LinkedIn gold in your voice daily. Welcome to hands-free thought leadership.\"\n          }]"
+      },
+      "id": "c7094a20-a96a-4db8-9ee4-95f86de800ac",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        896,
+        464
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"post title\": \"Exciting New Feature Launch 🚀\",\n  \"post content\": \"After months of collaboration, testing, and fine-tuning, we're thrilled to introduce our latest product feature: Smart Insights. It helps users uncover meaningful patterns in their data with just a few clicks. This wouldn't have been possible without our incredible team and supportive community. We're excited for what's next — and we'd love your feedback!\",\n  \"image description\": \"A laptop screen showcasing the new Smart Insights dashboard with colorful charts and graphs, surrounded by a team clapping in the background.\"\n}"
+      },
+      "id": "cc1e5e3c-31de-4d1b-948b-89165fbc9769",
+      "name": "Structured Output Parser1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1296,
+        432
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"post title\": \"Exciting New Feature Launch 🚀\",\n  \"post content\": \"After months of collaboration, testing, and fine-tuning, we're thrilled to introduce our latest product feature: Smart Insights. It helps users uncover meaningful patterns in their data with just a few clicks. This wouldn't have been possible without our incredible team and supportive community. We're excited for what's next — and we'd love your feedback!\",\n  \"image description\": \"A laptop screen showcasing the new Smart Insights dashboard with colorful charts and graphs, surrounded by a team clapping in the background.\",\n\"Hashtags\":[\"#AI\",\"#Automation\"]\n}"
+      },
+      "id": "692b1c2e-bdc7-474e-859e-204970f512a6",
+      "name": "Structured Output Parser2",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1792,
+        576
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        688,
+        464
+      ],
+      "id": "f527df6d-559e-4f9e-9238-cc4b2ba0ea8c",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "0D7edecmR5lSmQdn",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1136,
+        416
+      ],
+      "id": "234a6031-a4b9-4c05-b370-f78526bff491",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "0D7edecmR5lSmQdn",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Create hashtags and keywords for this post: {{ $json.output['post content'] }}\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You create hashtags and search keywords for LinkedIn posts by Mosten Mulenge, founder of Blessed Hope Book Center in Zambia.\n\nRules:\n- Give 4 to 5 hashtags only.\n- Mix 1 or 2 broad tags (e.g. #Reading, #Books), 1 or 2 topic-specific tags, and 1 local tag (e.g. #Zambia or #Lusaka).\n- CamelCase for multi-word tags (#BookLovers).\n- No spammy or irrelevant tags.\n- Also give 3 to 5 plain keywords that people might search for."
+        }
+      },
+      "id": "f3901b98-cfe4-4d48-9e35-59161cbcfdd9",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1552,
+        256
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1616,
+        624
+      ],
+      "id": "ab41e9a9-1e62-4f41-9f9e-87295843d50a",
+      "name": "Groq Chat Model2",
+      "credentials": {
+        "groqApi": {
+          "id": "0D7edecmR5lSmQdn",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.buffer.com",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  query: `mutation {\n    createPost(input: {\n      text: ${JSON.stringify($('Post Content').item.json.output['post content'] + \"\\n\\n\" + $json.output.Hashtags.join(' '))},\n      channelId: \"6ae33c752f1f5ed6480ddab3\",\n      schedulingType: automatic,\n      mode: addToQueue,\n      saveToDraft: true\n    }) {\n      ... on PostActionSuccess { post { id text } }\n      ... on MutationError { message }\n    }\n  }`\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1920,
+        256
+      ],
+      "id": "d288cb83-d4cd-4a98-8b27-59801132749e",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "R3WlC7K6q68XUtJR",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Today is {{ $now.format('cccc, d LLLL yyyy') }}.\nGenerate one LinkedIn post topic for this week",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a LinkedIn content strategist for Mosten Mulenge, founder of Blessed Hope Book Center in Zambia.\n\nAbout the business: [one or two sentences: what the bookshop sells, who buys from it, what makes it different, e.g. Christian books, school books, children's books].\n\nAudience: [e.g. parents, pastors, teachers, students, book lovers, other entrepreneurs in Zambia and Africa].\n\nGoals: build trust in Mosten as a founder, show the story behind the bookshop, and encourage people to read and visit or buy on selar or amazon.\n\nChoose ONE fresh topic per run. Rotate between these types:\n- A lesson from running a bookshop in Zambia\n- A book recommendation and why it matters\n- The value of reading for families, faith or business\n- Behind the scenes at the bookshop\n- A customer or community story (never invent real names)\n- A founder lesson from Mostyn's journey\n\nRules:\n- Keep it relevant to Zambia and Africa where it fits.\n- Do not repeat recent topics.\n- Do not make up facts, statistics or quotes.\nReturn only the requested structured output."
+        }
+      },
+      "id": "928e2771-ec9f-48ff-b34e-9c3ab9c4a828",
+      "name": "Topic generator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        720,
+        240
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Write a LinkedIn post for this topic:\nTopic: {{ $json.output[0].title }}\nType: {{ $json.output[0].rationale }}\nHook: {{ $json.output[0].hook }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You write LinkedIn posts in the voice of Mosten Mulenge, founder of Blessed Hope Book Center in Zambia.  \n\nVoice: warm, sincere, confident, simple English. Short sentences. [Add: faith-inspired / professional / conversational, as Mostyn prefers.] No corporate jargon, no buzzwords.  \n\nStructure: 1. A strong first line that makes people stop scrolling (under 12 words). 2. A short personal or practical story, or the main idea, in 3 to 6 short paragraphs with blank lines between them. 3. One clear takeaway. 4. A simple question or call to action at the end, e.g. inviting people to comment or visit the shop.  \n\nRules: - 120 to 220 words. - Maximum 2 emojis, or none. - Do not include hashtags (another step adds them). - Do not invent statistics, prices, quotes or customer names. - Write in first person as Mostyn.  \n\nAlso write an image prompt: a simple, realistic, warm image idea that matches the post (for example books on a wooden table, a reading corner, a bookshop shelf). No text in the image, no recognisable real people."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "id": "84b30f40-e7fa-4c46-9a82-39bbd2becfe0",
+      "name": "Post Content",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        1136,
+        240
+      ],
+      "typeVersion": 1.7
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Topic generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Topic generator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Post Content",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Topic generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Post Content",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Topic generator": {
+      "main": [
+        [
+          {
+            "node": "Post Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Content": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7593ad99-f6b2-4282-9ef6-defd771e1cf3",
+  "meta": {
+    "templateId": "4968",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "093a7d81b0ce66ac8f097da66fc05b0df6e19a3a5bc1b8326bb7410c9594f7ed"
+  },
+  "nodeGroups": [],
+  "id": "X4p1l9c5kB75iBLY",
+  "tags": []
+}

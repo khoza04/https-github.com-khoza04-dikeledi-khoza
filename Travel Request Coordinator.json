@@ -1,0 +1,660 @@
+{
+  "name": "Travel Request Coordinator",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Travel Request",
+        "formDescription": "Tell us about your trip and we will prepare your travel arrangements.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Client Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Destination"
+            },
+            {
+              "fieldLabel": "Departing From"
+            },
+            {
+              "fieldLabel": "Departure Date",
+              "fieldType": "date"
+            },
+            {
+              "fieldLabel": "Return Date",
+              "fieldType": "date"
+            },
+            {
+              "fieldLabel": "Preferred Departure Time",
+              "placeholder": "e.g. 2:30 PM"
+            },
+            {
+              "fieldLabel": "Number of Travelers",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "Travel Preferences",
+              "fieldType": "textarea",
+              "placeholder": "Flights, hotel, budget, meals, accessibility..."
+            }
+          ]
+        },
+        "options": {
+          "path": "travel-request",
+          "respondWithOptions": {
+            "values": {
+              "formSubmittedText": "Thank you! Your travel request has been received."
+            }
+          }
+        }
+      },
+      "id": "8e40e486-1122-4115-a1b7-c83121246433",
+      "name": "Travel Request Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        96
+      ],
+      "webhookId": "f817c30d-8744-4925-9862-f3f5d64bc746"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1AsUZ1LoIcYeLhxKaC0UMrXxOhjEMHFKYhtA8aD8aAWc",
+          "cachedResultName": "Travel Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AsUZ1LoIcYeLhxKaC0UMrXxOhjEMHFKYhtA8aD8aAWc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {
+            "Submitted At": "={{ $now.toFormat(\"yyyy-MM-dd HH:mm\") }}",
+            "Client Email": "={{ $json[\"Client Email\"] }}",
+            "Destination": "={{ $json[\"Destination\"] }}",
+            "Departing From": "={{ $json[\"Departing From\"] }}",
+            "Departure Date": "={{ $json[\"Departure Date\"] }}",
+            "Return Date": "={{ $json[\"Return Date\"] }}",
+            "Preferred Departure Time": "={{ $json[\"Preferred Departure Time\"] }}",
+            "Number of Travelers": "={{ $json[\"Number of Travelers\"] }}",
+            "Travel Preferences": "={{ $json[\"Travel Preferences\"] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Submitted At",
+              "displayName": "Submitted At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Client Email",
+              "displayName": "Client Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Destination",
+              "displayName": "Destination",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Departing From",
+              "displayName": "Departing From",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Departure Date",
+              "displayName": "Departure Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Return Date",
+              "displayName": "Return Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Preferred Departure Time",
+              "displayName": "Preferred Departure Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Number of Travelers",
+              "displayName": "Number of Travelers",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Travel Preferences",
+              "displayName": "Travel Preferences",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "4213a38a-9e2e-40b2-801e-fb70b3f3d14e",
+      "name": "Log Request to Travel Tracker",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        384,
+        -192
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "missing",
+              "name": "missingFields",
+              "type": "string",
+              "value": "={{ [\"Destination\",\"Departing From\",\"Departure Date\",\"Return Date\",\"Preferred Departure Time\",\"Number of Travelers\",\"Travel Preferences\"].filter(f => $json[f] === undefined || $json[f] === null || String($json[f]).trim() === \"\").join(\", \") }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "046b55ce-8505-4d23-bd77-ead0b7e4c5fa",
+      "name": "Check Details",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        272,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "missing-check",
+              "leftValue": "={{ $json.missingFields }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "59610fa5-c665-4734-ac78-bfe9cac2dbc4",
+      "name": "Anything Missing?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        496,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "dikeledibongiwe04@gmail.com",
+        "subject": "=Missing details: travel request from {{ $json[\"Client Name\"] }}",
+        "message": "=<p>A travel request came in from <b>{{ $json[\"Client Name\"] }}</b> ({{ $json[\"Client Email\"] }}) but some details are missing.</p><p><b>Missing:</b> {{ $json.missingFields }}</p><p>Please follow up with the client, then resubmit the request.</p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "58a5d31e-c586-4b1c-8651-4211fcc64cf7",
+      "name": "Email Me Missing Details",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        224
+      ],
+      "webhookId": "a2e63eb7-0aa0-4abf-8b3c-e3c0a9325ca9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cScanRl2QlV83qHe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Research this trip.\n\nDestination: {{ $json[\"Destination\"] }}\nDeparting from: {{ $json[\"Departing From\"] }}\nDeparture date: {{ $json[\"Departure Date\"] }}\nReturn date: {{ $json[\"Return Date\"] }}\nPreferred departure time: {{ $json[\"Preferred Departure Time\"] }}\nTravelers: {{ $json[\"Number of Travelers\"] }}\nPreferences: {{ $json[\"Travel Preferences\"] }}",
+        "options": {
+          "systemMessage": "You are a travel researcher. Use the searxng_search tool to find (1) flight options and airlines on the route for the given dates, (2) hotels that match the traveler preferences and budget, and (3) practical information about the destination: top attractions, weather around the travel dates, local transport, safety and entry requirements. Keep it light: make at most 2 searches in total (one for flights and hotels, one for destination tips), and keep the notes under 250 words. Report only what the sources say, and when a source gives a price, label it as indicative and say where it came from. Never invent prices, flight numbers or availability; if you could not find something, say so. Return concise plain-text notes in three sections: FLIGHTS, HOTELS, DESTINATION.",
+          "maxIterations": 5
+        }
+      },
+      "id": "1da54a0e-6cc4-4216-92f7-eb59f0123e0f",
+      "name": "Research Trip",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        864,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {
+          "maxTokensToSample": 1200
+        }
+      },
+      "id": "a2f7d307-ce0c-40d9-8ee7-6bb932e8c194",
+      "name": "Research Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        800,
+        672
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "0D7edecmR5lSmQdn",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "numResults": 4
+        }
+      },
+      "id": "2ddb16e4-c645-413c-9283-c2df49d0ca92",
+      "name": "searxng_search",
+      "type": "@n8n/n8n-nodes-langchain.toolSearXng",
+      "typeVersion": 1,
+      "position": [
+        944,
+        736
+      ],
+      "credentials": {
+        "searXngApi": {
+          "id": "RrOtCMZ3vp4wbfpl",
+          "name": "SearXNG account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Prepare a travel itinerary draft for this client request.\n\nClient: {{ $('Check Details').item.json[\"Client Email\"] }}\nDestination: {{ $('Check Details').item.json[\"Destination\"] }}\nDeparting from: {{ $('Check Details').item.json[\"Departing From\"] }}\nDeparture date: {{ $('Check Details').item.json[\"Departure Date\"] }}\nReturn date: {{ $('Check Details').item.json[\"Return Date\"] }}\nPreferred departure time: {{ $('Check Details').item.json[\"Preferred Departure Time\"] }}\nTravelers: {{ $('Check Details').item.json[\"Number of Travelers\"] }}\nPreferences: {{ $('Check Details').item.json[\"Travel Preferences\"] }}\n\nResearch notes (flights, hotels, destination):\n{{ $json.output }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a professional travel coordinator. Write a clear, friendly itinerary email body in simple HTML (p, ul, li, b only; no html/body tags). Include: a greeting, trip summary (route, dates, travelers), flight options, hotel options matching the preferences, destination tips, a day-by-day outline, and a short note that final bookings and prices are pending confirmation. Base flights, hotels and destination facts on the research notes only. Show prices only if the notes give them, labelled indicative. Do not invent prices, flight numbers or booking references. Output only the HTML."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "id": "59d56875-fc47-4d3e-ad20-6485fa7ebbbd",
+      "name": "Draft Itinerary",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1328,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {
+          "maxTokensToSample": 2000
+        }
+      },
+      "id": "e2a49faa-d900-4ece-ab5c-2a4d4f640d1f",
+      "name": "Groq Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1408,
+        448
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "0D7edecmR5lSmQdn",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "dikeledibongiwe04@gmail.com",
+        "subject": "=Approve itinerary for {{ $(\"Check Details\").item.json[\"Client Name\"] }}",
+        "message": "=<p>Draft itinerary for <b>{{ $(\"Check Details\").item.json[\"Client Name\"] }}</b> ({{ $(\"Check Details\").item.json[\"Client Email\"] }}):</p><hr>{{ $json.text }}<hr><p>Approve to email this to the client and add the trip to your calendar.</p>",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Approve & Send",
+            "disapproveLabel": "Reject"
+          }
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "0349e352-d475-4f92-9061-cea2670f97bf",
+      "name": "Ask Me to Approve",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1680,
+        224
+      ],
+      "webhookId": "33c6cf2b-b0e5-4ade-ae9e-d6a6042c8101",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cScanRl2QlV83qHe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "approved-check",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "295a0d66-d3d2-4040-b74d-cbcde7353c34",
+      "name": "Approved?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        2096,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $(\"Check Details\").item.json[\"Client Email\"] }}",
+        "subject": "=Your travel itinerary: {{ $(\"Check Details\").item.json[\"Destination\"] }}",
+        "message": "={{ $(\"Draft Itinerary\").item.json.text }}",
+        "options": {
+          "appendAttribution": false,
+          "bccList": "dikeledibongiwe04@gmail.com"
+        }
+      },
+      "id": "cc46c051-0ea5-4978-af4b-f5fc1da2d794",
+      "name": "Send Itinerary to Client",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1808,
+        0
+      ],
+      "webhookId": "3fe49b34-18b4-49e6-8a2e-ccf6df48b7d4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cScanRl2QlV83qHe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "dikeledibongiwe04@gmail.com"
+        },
+        "start": "={{ $(\"Check Details\").item.json[\"Departure Date\"] }}",
+        "end": "={{ DateTime.fromISO($(\"Check Details\").item.json[\"Return Date\"]).plus({ days: 1 }).toISODate() }}",
+        "additionalFields": {
+          "allday": "yes",
+          "description": "=Client: {{ $(\"Check Details\").item.json[\"Client Name\"] }} ({{ $(\"Check Details\").item.json[\"Client Email\"] }})\nDeparting from: {{ $(\"Check Details\").item.json[\"Departing From\"] }}\nPreferred departure time: {{ $(\"Check Details\").item.json[\"Preferred Departure Time\"] }}\nTravelers: {{ $(\"Check Details\").item.json[\"Number of Travelers\"] }}\nPreferences: {{ $(\"Check Details\").item.json[\"Travel Preferences\"] }}",
+          "location": "={{ $(\"Check Details\").item.json[\"Destination\"] }}",
+          "summary": "=Trip: {{ $(\"Check Details\").item.json[\"Client Name\"] }} to {{ $(\"Check Details\").item.json[\"Destination\"] }}"
+        }
+      },
+      "id": "1016b49f-b294-42c4-9df5-c5470e69ab2a",
+      "name": "Add Trip to Calendar",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1808,
+        192
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "z3N7L7glK8XcSftk",
+          "name": "Google Calendar account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Travel Request Form": {
+      "main": [
+        [
+          {
+            "node": "Log Request to Travel Tracker",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Details": {
+      "main": [
+        [
+          {
+            "node": "Anything Missing?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anything Missing?": {
+      "main": [
+        [
+          {
+            "node": "Email Me Missing Details",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Research Trip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Trip": {
+      "main": [
+        [
+          {
+            "node": "Draft Itinerary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Research Trip",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "searxng_search": {
+      "ai_tool": [
+        [
+          {
+            "node": "Research Trip",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft Itinerary": {
+      "main": [
+        [
+          {
+            "node": "Ask Me to Approve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Draft Itinerary",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask Me to Approve": {
+      "main": [
+        [
+          {
+            "node": "Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved?": {
+      "main": [
+        [
+          {
+            "node": "Send Itinerary to Client",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Add Trip to Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Me Missing Details": {
+      "main": [
+        [
+          {
+            "node": "Research Trip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d8a11525-442a-44cb-99b0-4a6f04db240a",
+  "meta": {
+    "instanceId": "093a7d81b0ce66ac8f097da66fc05b0df6e19a3a5bc1b8326bb7410c9594f7ed"
+  },
+  "nodeGroups": [],
+  "id": "jjTJDHBB7XY7tR3P",
+  "tags": []
+}

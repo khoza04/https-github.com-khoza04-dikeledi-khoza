@@ -1,0 +1,251 @@
+{
+  "name": "Booking System & Fireflies Summary",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fireflies-meeting-summary",
+        "options": {}
+      },
+      "id": "37cc0c71-9284-488b-bd32-105a846494f2",
+      "name": "Fireflies Meeting Summarized",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "9f957779-850d-4742-bf02-d66edc4c6fa3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireflies.ai/graphql",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpTemplatedCustomAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: \"query Transcript($id: String!) { transcript(id: $id) { id title organizer_email participants summary { overview action_items } } }\", variables: { id: $json.body.meeting_id } }) }}",
+        "options": {}
+      },
+      "id": "2b5b6d8f-0224-4e48-8b49-d597a5034c5b",
+      "name": "Get Meeting Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "credentials": {
+        "httpTemplatedCustomAuth": {
+          "id": "0Iw6qG8rGlqzNrwI",
+          "name": "Fireflies API Key (Dikeledi K)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data.transcript.participants",
+        "options": {
+          "destinationFieldName": "attendeeEmail"
+        }
+      },
+      "id": "859a1c36-a351-4bf4-b991-3e1509fd3adc",
+      "name": "One Item Per Attendee",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.attendeeEmail.trim().toLowerCase() }}",
+              "rightValue": "={{ ($('Get Meeting Summary').item.json.data.transcript.organizer_email || '').toLowerCase() }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "leftValue": "={{ $json.attendeeEmail }}",
+              "rightValue": "@",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "26f55735-1c94-439e-a77d-b4aa1783a34f",
+      "name": "Skip Organizer",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "email": "={{ $json.attendeeEmail.trim() }}",
+        "additionalFields": {
+          "membershipNote": "={{ 'Meeting: ' + ($('Get Meeting Summary').item.json.data.transcript.title || '') + '\\n\\nOverview:\\n' + ($('Get Meeting Summary').item.json.data.transcript.summary.overview || '') + '\\n\\nAction items:\\n' + ($('Get Meeting Summary').item.json.data.transcript.summary.action_items || '') }}"
+        },
+        "options": {
+          "resolveData": false
+        }
+      },
+      "id": "f4a74e92-ef5f-4a21-bece-d1e0281c0282",
+      "name": "Save Summary to Contact",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        0
+      ],
+      "credentials": {
+        "hubspotOAuth2Api": {
+          "id": "9Ibz44ZHM5PGOgiL",
+          "name": "HubSpot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "events": [
+          "invitee.created"
+        ]
+      },
+      "type": "n8n-nodes-base.calendlyTrigger",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        -176
+      ],
+      "id": "b9f0e375-7d4c-423f-8bc0-6e6b9122a86b",
+      "name": "Calendly Trigger",
+      "webhookId": "e39a69f1-c28d-403f-a588-8ffc11a2c1f0",
+      "credentials": {
+        "calendlyOAuth2Api": {
+          "id": "6sDBJir9jkyyUcrb",
+          "name": "Calendly account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "email": "={{ $json.payload.email }}",
+        "additionalFields": {
+          "firstName": "={{ $json.payload.name }}",
+          "lastName": "={{ $json.payload.last_name }}",
+          "message": "={{ $json.payload.questions_and_answers[0].answer }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        -176
+      ],
+      "id": "b20d8aaf-19a1-4798-8a7d-1a4e6b327119",
+      "name": "Create or update a contact",
+      "credentials": {
+        "hubspotOAuth2Api": {
+          "id": "9Ibz44ZHM5PGOgiL",
+          "name": "HubSpot account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Fireflies Meeting Summarized": {
+      "main": [
+        [
+          {
+            "node": "Get Meeting Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Meeting Summary": {
+      "main": [
+        [
+          {
+            "node": "One Item Per Attendee",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One Item Per Attendee": {
+      "main": [
+        [
+          {
+            "node": "Skip Organizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip Organizer": {
+      "main": [
+        [
+          {
+            "node": "Save Summary to Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendly Trigger": {
+      "main": [
+        [
+          {
+            "node": "Create or update a contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "cdee0f58-480c-4d54-ab5f-85b45d172aad",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c6d7bc4a0c4cf56ad2303905917babf85f0c70471f8a2d67a18e35df95df5c61"
+  },
+  "nodeGroups": [],
+  "id": "70zwtp9xikk2oKi2",
+  "tags": []
+}

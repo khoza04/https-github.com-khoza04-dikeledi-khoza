@@ -1,0 +1,644 @@
+{
+  "name": "AI Email Assist",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -864,
+        -272
+      ],
+      "id": "4f88eaab-54cf-41f8-b9c6-1dd56f173570",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qioZPWem3FstqZ7H",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={Classify this email.}\n\nFrom: {{ $json.From }}\nSubject: {{ $json.Subject }}\nMessage: {{ $json.snippet }}}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an email assistant for Dikeledi, who runs a VA and automation business.\n\nClassify each email into exactly one category:\n- Urgent: needs action today (deadlines, complaints, payment problems)\n- Lead: a new person or business asking about services or a meeting\n- Client: an existing client's request or update\n- Admin: invoices, receipts, notifications, scheduling\n- Other: newsletters, promotions, anything unclear\n\nReturn only valid JSON in this format:\n{\"category\": \"\", \"summary\": \"one short sentence\", \"needs_reply\": true or false}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -352,
+        -128
+      ],
+      "id": "17d255cf-335d-42e5-acea-8ff3fb787e05",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        96
+      ],
+      "id": "a8c48a2d-2b35-484c-a1a1-3d7fc04ee0e5",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "qeX09qMTQlbTkC3Q",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "=   {{ $json.category.trim().toLowerCase() }}",
+                    "rightValue": "lead",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "f273bf08-c5ec-47d8-acb0-a9b582190ad2"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "lead"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "0160b9d7-3a61-4427-b214-7513486a20e5",
+                    "leftValue": "=   {{ $json.category.trim().toLowerCase() }}",
+                    "rightValue": "urgent",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "urgent"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "01c2bda5-f599-4db4-a9e5-d2d269ae8f2e",
+                    "leftValue": "=   {{ $json.category.trim().toLowerCase() }}",
+                    "rightValue": "client",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "client"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "dde525c9-5eaf-4c39-911c-f3cfa368aeed",
+                    "leftValue": "=   {{ $json.category.trim().toLowerCase() }}",
+                    "rightValue": "admin",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "admin"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "fallbackOutput": "extra",
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        -64
+      ],
+      "id": "ef7a4c70-b54c-42b4-ac31-ffadc10f9991",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "479c3ac4-910f-42ce-8bc2-460c547faee9",
+              "name": "category",
+              "value": "=   {{ JSON.parse($json.text).category }}",
+              "type": "string"
+            },
+            {
+              "id": "94fbc0c9-004c-4260-af4f-8d645a4a3bd2",
+              "name": "summary",
+              "value": "=   {{ JSON.parse($json.text).summary }}",
+              "type": "string"
+            },
+            {
+              "id": "d98ed4b0-979c-4ddf-96af-3a84f4f55c20",
+              "name": "needs_reply",
+              "value": false,
+              "type": "boolean"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        0,
+        -256
+      ],
+      "id": "6fe7d06b-26f8-4c4c-b2e7-b96592deab52",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_2071483875720265002"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        -368
+      ],
+      "id": "bf2c0366-1534-4cc6-9394-35f0a761be9e",
+      "name": "Add label to message",
+      "webhookId": "e0c8cb46-9eab-47c3-895c-767ee7c062e4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qioZPWem3FstqZ7H",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_5301788404237773179"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        -128
+      ],
+      "id": "c7439a03-d2a7-4c3c-9cd5-80a3cd068e89",
+      "name": "Add label to message1",
+      "webhookId": "ea215484-039b-4247-a8cf-7713dbbf7967",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qioZPWem3FstqZ7H",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_3"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        640,
+        0
+      ],
+      "id": "4774fb17-eab2-4a4c-9bbc-c0abf26535de",
+      "name": "Add label to message2",
+      "webhookId": "3ebc96a3-0bfe-4052-a8f0-b87710ad7b1f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qioZPWem3FstqZ7H",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_8131598997559378292"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        528,
+        96
+      ],
+      "id": "0dfff3d2-6229-4cf3-ab74-7a0de08deece",
+      "name": "Add label to message3",
+      "webhookId": "88d5c159-eda0-42bc-8642-934ba88c1391",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qioZPWem3FstqZ7H",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "INBOX"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        224
+      ],
+      "id": "9b11c713-a967-44b1-9587-c75db1bc8b81",
+      "name": "Add label to message4",
+      "webhookId": "f37e23af-9995-4941-9acc-ac29087c265e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qioZPWem3FstqZ7H",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0CAY8QEJ9Y",
+          "mode": "list",
+          "cachedResultName": "urgent-emails"
+        },
+        "text": "=Urgent Emails:\n\nSubject:{{ $('Gmail Trigger').item.json.Subject }}\nSummary: {{ $('Edit Fields').item.json.summary }}\nFrom:  {{ $('Gmail Trigger').item.json.From }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        736,
+        -160
+      ],
+      "id": "2c426099-858d-4f7a-aaef-99dff3db4436",
+      "name": "Send a message",
+      "webhookId": "ded07d6b-9d8d-4389-a996-c64745e6ae2c",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "o4YuXiqkz041kpbM",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=From: {{ $('Gmail Trigger').item.json.From }}\nSubject: {{ $('Gmail Trigger').item.json.Subject }}\nMessage: {{ $('Gmail Trigger').item.json.snippet }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You write email replies for Dikeledi, who runs Dikeledi VA & AI Solutions. \n\nWrite a professional, simple and clear reply. Avoid jargon. Keep it under 120 words. Greet the sender by first name. If they ask to book a meeting, include this booking link:https://calendly.com/dikeledibongiwe04/new-meeting\nEnd with \"Kind regards, Dikeledi\".\nReturn only the email body, with no subject line and no explanations."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1056,
+        -80
+      ],
+      "id": "aeddf46f-3016-4fca-b04e-f04d926a35af",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        992,
+        128
+      ],
+      "id": "535450d5-81cb-401f-9920-25de71aeeb12",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "qeX09qMTQlbTkC3Q",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $('Gmail Trigger').item.json.headers.subject }}",
+        "message": "={{ $json.text }}",
+        "options": {
+          "replyTo": "={{ $('Gmail Trigger').item.json.headers.from }}",
+          "threadId": "={{ $('Gmail Trigger').item.json.threadId }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1424,
+        -80
+      ],
+      "id": "08c7a92d-08e8-47ac-b6f4-360e3ae51bf6",
+      "name": "Create a draft",
+      "webhookId": "6289f755-98c1-4628-b341-1dc4a635e9a1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qioZPWem3FstqZ7H",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c6ed8117-8762-42ba-a81b-8eec764f8246",
+              "name": "headers.from",
+              "value": "no_reply",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -640,
+        -272
+      ],
+      "id": "7449b135-fdab-4bac-b68d-60331296dc49",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Add label to message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add label to message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add label to message2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add label to message3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add label to message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add label to message": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add label to message1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add label to message2": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add label to message4": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5795e837-2c89-4381-acf9-d923825e29e1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c6d7bc4a0c4cf56ad2303905917babf85f0c70471f8a2d67a18e35df95df5c61"
+  },
+  "nodeGroups": [],
+  "id": "sbaHPjnTXqR9D5nj",
+  "tags": []
+}

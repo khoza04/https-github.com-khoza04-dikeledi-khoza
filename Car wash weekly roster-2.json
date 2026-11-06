@@ -1,0 +1,903 @@
+{
+  "name": "Car wash weekly roster-2",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtHour": 18
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -848,
+        -352
+      ],
+      "id": "013cd79d-524a-46a5-9145-b89b2094d60b",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseMode": "lastNode"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -1520,
+        -928
+      ],
+      "id": "5b65c0e6-1952-4359-97f0-7414e846f63c",
+      "name": "When chat message received",
+      "webhookId": "fc7b6412-34bb-47f1-87ff-d3c75c75ddf0"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "546ed4fc-20df-4a21-9a49-ccc6f9bc91cc",
+              "name": "line",
+              "value": "={{ $json.Day }} {{ $json.Date }}: {{ $json.Employee }} - {{ $json.Shift }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -624,
+        -544
+      ],
+      "id": "95c228b3-5fb6-41da-a16f-356551cff2cf",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "line"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -544
+      ],
+      "id": "43dafc49-c3c6-419d-ad02-ccb2d5b0fffd",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6d072920-1308-490a-a147-f26b06d02dff",
+              "name": "output",
+              "value": "=Next week's car wash roster: {{ $json.line.join('\\n') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -176,
+        -544
+      ],
+      "id": "b2153304-5643-40ac-972d-e1164b9a0b6f",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "190f1384-d43b-445f-bf80-e68d8e7631c3",
+              "leftValue": "={{ $json.chatInput.toLowerCase() }}",
+              "rightValue": "swap",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        -1296,
+        -928
+      ],
+      "id": "3951b370-8efc-442a-8976-ed553d1bf647",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "b022f429-a17b-4625-8999-9d4a53302103",
+              "leftValue": "={{ $json['Manager Approval'] }}",
+              "rightValue": "Approved",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        -848,
+        -928
+      ],
+      "id": "9b3f552a-c001-46be-a4b7-6fbee4386200",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk",
+          "mode": "list",
+          "cachedResultName": "Car Wash 24/7 Shift Roster - Demo for Andrew (Cresta)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1706304019,
+          "mode": "list",
+          "cachedResultName": "Swap Requests",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk/edit#gid=1706304019"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Manager Approval": "Rejected",
+            "Final Status": "Rejected"
+          },
+          "matchingColumns": [
+            "Manager Approval"
+          ],
+          "schema": [
+            {
+              "id": "Date Requested",
+              "displayName": "Date Requested",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Shift Date",
+              "displayName": "Shift Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Shift",
+              "displayName": "Shift",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Requesting Employee",
+              "displayName": "Requesting Employee",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Covering Employee",
+              "displayName": "Covering Employee",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Manager Approval",
+              "displayName": "Manager Approval",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Final Status",
+              "displayName": "Final Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -656,
+        -720
+      ],
+      "id": "c18268d0-55d1-417f-a2f9-116deac9861b",
+      "name": "Update row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XzhngtjO93ZAS4ya",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk",
+          "mode": "list",
+          "cachedResultName": "Car Wash 24/7 Shift Roster - Demo for Andrew (Cresta)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1706304019,
+          "mode": "list",
+          "cachedResultName": "Swap Requests",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk/edit#gid=1706304019"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date Requested": "={{ $now.format('yyyy-MM-dd') }}",
+            "Manager Approval": "Pending",
+            "Final Status": "Awaiting manager reply",
+            "Shift": "Day ( 08:00-18:00)",
+            "Shift Date": "={{ (() => { const d=['sunday','monday','tuesday','wednesday','thursday','friday','saturday']; const t=$json.chatInput.toLowerCase(); const i=d.findIndex(x=>t.includes(x)); if(i<0) return ''; let n=(i-$now.weekday%7+7)%7; if(n===0) n=7; return $now.plus({days:n}).toFormat('yyyy-MM-dd'); })() }}",
+            "Requesting Employee": "={{ (() => { const staff = {thabo:'Thabo Mokoena', lerato:'Lerato Dube', sipho:'Sipho Nkosi', naledi:'Naledi Sithole', kagiso:'Kagiso Molefe', zanele:'Zanele Khumalo', tshepo:'Tshepo Maseko', palesa:'Palesa Ndlovu'}; const t = $json.chatInput.toLowerCase(); const k = Object.keys(staff).find(n => t.includes(n)); return k ? staff[k] : $json.chatInput; })() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date Requested",
+              "displayName": "Date Requested",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Shift Date",
+              "displayName": "Shift Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Shift",
+              "displayName": "Shift",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Requesting Employee",
+              "displayName": "Requesting Employee",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Covering Employee",
+              "displayName": "Covering Employee",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Manager Approval",
+              "displayName": "Manager Approval",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Final Status",
+              "displayName": "Final Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1072,
+        -928
+      ],
+      "id": "25207bf8-d07b-4cb9-b937-15af99cb46f2",
+      "name": "Swap Request",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XzhngtjO93ZAS4ya",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk",
+          "mode": "list",
+          "cachedResultName": "Car Wash 24/7 Shift Roster - Demo for Andrew (Cresta)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1706304019,
+          "mode": "list",
+          "cachedResultName": "Swap Requests",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk/edit#gid=1706304019"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Final Status": "Swapped",
+            "Manager Approval": "Approved"
+          },
+          "matchingColumns": [
+            "Manager Approval"
+          ],
+          "schema": [
+            {
+              "id": "Date Requested",
+              "displayName": "Date Requested",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Shift Date",
+              "displayName": "Shift Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Shift",
+              "displayName": "Shift",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Requesting Employee",
+              "displayName": "Requesting Employee",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Covering Employee",
+              "displayName": "Covering Employee",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Manager Approval",
+              "displayName": "Manager Approval",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Final Status",
+              "displayName": "Final Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -624,
+        -928
+      ],
+      "id": "ed769dbd-f33e-42dc-9303-72dd05a22a36",
+      "name": "Shift Swapped",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XzhngtjO93ZAS4ya",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk",
+          "mode": "list",
+          "cachedResultName": "Car Wash 24/7 Shift Roster - Demo for Andrew (Cresta)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1706304019,
+          "mode": "list",
+          "cachedResultName": "Swap Requests",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk/edit#gid=1706304019"
+        },
+        "event": "rowUpdate",
+        "options": {
+          "columnsToWatch": [
+            "Manager Approval"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        -352
+      ],
+      "id": "2791570e-139a-4001-9ac6-54d128e88f1d",
+      "name": "Manager approval",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "hDZhu1LAkkG4ljSz",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk",
+          "mode": "list",
+          "cachedResultName": "Car Wash 24/7 Shift Roster - Demo for Andrew (Cresta)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1502334543,
+          "mode": "list",
+          "cachedResultName": "Weekly Roster",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk/edit#gid=1502334543"
+        },
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -624,
+        -352
+      ],
+      "id": "1281958c-fd28-4738-9c2a-e54eaeb482f9",
+      "name": "Weekly roster",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XzhngtjO93ZAS4ya",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "dikeledibongiwe04@gmail.com",
+          "mode": "list",
+          "cachedResultName": "dikeledibongiwe04@gmail.com"
+        },
+        "start": "={{ $json.Date }}T08:00:00",
+        "end": "={{ $json.Date }}T18:00:00",
+        "additionalFields": {
+          "summary": "={{ $json.Employee }}-{{ $json.Shift }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        -400,
+        -928
+      ],
+      "id": "cc3e0bd4-90aa-4ff8-bf52-bced38b5746c",
+      "name": "Create an event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "z3N7L7glK8XcSftk",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk",
+          "mode": "list",
+          "cachedResultName": "Car Wash 24/7 Shift Roster - Demo for Andrew (Cresta)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1502334543,
+          "mode": "list",
+          "cachedResultName": "Weekly Roster",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ed0KibK5HLy3TWJU-jh1euFcjSPi7KodFA5qVqEkfLk/edit#gid=1502334543"
+        },
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1072,
+        -544
+      ],
+      "id": "2bdcf3b7-3b0e-4a5a-8463-3b61b9d53df2",
+      "name": "Weekly roster1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XzhngtjO93ZAS4ya",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "136292fb-cb5e-4f72-866e-fa96d5e5be06",
+              "leftValue": "={{ (() => { const t = $('When chat message received').first().json.chatInput.toLowerCase(); const names = ['thabo','lerato','sipho','naledi','kagiso','zanele','tshepo','palesa']; const asked = names.filter(n => t.includes(n)); return asked.length === 0 || asked.some(n => $json.Employee.toLowerCase().includes(n)); })() }}",
+              "rightValue": "thabo mokoena",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        -848,
+        -544
+      ],
+      "id": "49d4d04c-3863-460d-83f9-3d61b7dc546e",
+      "name": "Filter"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Weekly roster",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Swap Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Weekly roster1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Shift Swapped",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        []
+      ]
+    },
+    "Update row in sheet2": {
+      "main": [
+        []
+      ]
+    },
+    "Swap Request": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shift Swapped": {
+      "main": [
+        [
+          {
+            "node": "Create an event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manager approval": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly roster": {
+      "main": [
+        [
+          {
+            "node": "Create an event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event": {
+      "main": [
+        []
+      ]
+    },
+    "Weekly roster1": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "62eb111c-95c8-4313-ad70-d0f39ea48845",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "093a7d81b0ce66ac8f097da66fc05b0df6e19a3a5bc1b8326bb7410c9594f7ed"
+  },
+  "nodeGroups": [],
+  "id": "SXM9z0tqEWI4WETk",
+  "tags": []
+}

@@ -1,0 +1,538 @@
+{
+  "name": "Customer Service Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "responseMode": "streaming"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -256,
+        -32
+      ],
+      "id": "962fc619-f84b-463e-b0bb-38b66a2bebc5",
+      "name": "When chat message received",
+      "webhookId": "3c09ba67-ef03-4ef2-9204-242154824192"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        192
+      ],
+      "id": "bd599909-832f-4793-81fd-679c12ee7369",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "0D7edecmR5lSmQdn",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Send a message in Gmail",
+        "sendTo": "automationspec04@gmil.com",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "Use this to alert the team when a customer needs a person. Include the customer’s name, phone number, order number and a short summary of the problem.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        864,
+        -96
+      ],
+      "id": "f855370c-2893-4261-b94a-2c43bd6a7ea7",
+      "name": "Human- HAND OVER",
+      "webhookId": "8768bb2a-07af-44a1-9f17-e7cb5fad4e8d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cScanRl2QlV83qHe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1056,
+        -272
+      ],
+      "id": "e04de8a7-3c1f-45b3-8ae1-90bd9abeb36e",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are the customer service assistant for Savage beauty, a business that sells lace frontals in South Africa. You chat with customers on our chat widget.\n\nYOUR JOB\nHelp customers with questions about products, prices, stock, ordering, delivery, returns, hair care and order status. Be friendly, clear and short. Write the way a helpful shop assistant would speak. Use simple words. Keep most replies to 2 to 4 sentences. Do not use emojis unless the customer does.\n\nYOUR TOOLS\n1. Products tool: the product and price list. Use it for any question about prices, lengths, textures, lace types, frontal sizes or stock. Always check it before answering. Never guess a price or say an item is in stock without checking.\n2. FAQ tool: the FAQ and policies document. Use it for delivery, payment, returns, hair care, installation, custom orders and business details.\n3. Orders tool: the order list. Use it only to check an order's status.\n4. Human handover tool: use it when a person needs to take over (see below).\n\nCHECKING AN ORDER\n- Ask the customer for their order number AND the phone number used on the order.\n- Only share the order details if both match the Orders tool exactly.\n- If they do not match, say: \"I could not find an order with those details. Please check them and try again, or I can pass you to our team.\"\n- Never share another customer's information. Never read out the full list of orders.\n- Share only: order status, courier, tracking number and estimated delivery date.\n- If the status is Delayed, apologise and offer to pass it to the team.\n\nRULES\n- Only answer from the tools. If the answer is not there, say you will check with the team, and hand over. Never make up prices, stock, delivery times or policies.\n- Prices are in rand (R).\n- Do not promise refunds, discounts, delivery dates or exceptions to the policy. Only the team can approve those.\n- If an item is Out of stock, say so and suggest the closest available option from the Products tool.\n- If an item is Low stock, tell the customer it is almost sold out. If it is Pre-order, tell them it ships 7 to 10 working days after payment.\n- If the customer's question is unclear (for example, no length or texture), ask one short question to find out what they need.\n- Do not give medical advice about hair loss or scalp problems. Suggest they see a professional.\n- Do not discuss other businesses or topics unrelated to the shop. Politely bring the conversation back.\n\nWHEN TO HAND OVER TO A PERSON\nUse the human handover tool when the customer:\n- has a complaint, or is upset or angry\n- received a damaged, wrong or missing item\n- asks for a refund, discount or exception\n- wants a custom order, wholesale pricing or installation\n- asks something you cannot find in your tools\n- asks to speak to a person\nBefore handing over, collect their name, phone number and order number (if they have one). Then say: \"Thank you, I have passed this to our team. They will reply to you during working hours.\"\n\nTONE\nWarm, polite and professional. If a customer is upset, apologise first, then help. Always end by asking if there is anything else you can help with, unless you are handing over."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        288,
+        -256
+      ],
+      "id": "32f30aa0-b072-49f2-a0f9-2a0d70c9a032",
+      "name": "Customer Agent"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get row(s) in sheet in Google Sheets",
+        "documentId": {
+          "__rl": true,
+          "value": "1JeMdtuv3hCM7ZxNAkgEzxdbO6jqESG5P9nvWzZYSV-o",
+          "mode": "list",
+          "cachedResultName": "Frontals Customer Service Data (Products and Orders)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JeMdtuv3hCM7ZxNAkgEzxdbO6jqESG5P9nvWzZYSV-o/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1,
+          "mode": "list",
+          "cachedResultName": "Orders",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JeMdtuv3hCM7ZxNAkgEzxdbO6jqESG5P9nvWzZYSV-o/edit#gid=1"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        256,
+        16
+      ],
+      "id": "c62f333a-4b80-405f-8377-5b005c75f3dc",
+      "name": "Orders",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get row(s) in sheet in Google Sheets",
+        "documentId": {
+          "__rl": true,
+          "value": "1JeMdtuv3hCM7ZxNAkgEzxdbO6jqESG5P9nvWzZYSV-o",
+          "mode": "list",
+          "cachedResultName": "Frontals Customer Service Data (Products and Orders)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JeMdtuv3hCM7ZxNAkgEzxdbO6jqESG5P9nvWzZYSV-o/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Products",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JeMdtuv3hCM7ZxNAkgEzxdbO6jqESG5P9nvWzZYSV-o/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        368,
+        32
+      ],
+      "id": "fff5e957-17a4-4499-839e-f3f889cc2123",
+      "name": "Products",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1JeMdtuv3hCM7ZxNAkgEzxdbO6jqESG5P9nvWzZYSV-o",
+          "mode": "list",
+          "cachedResultName": "Frontals Customer Service Data (Products and Orders)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JeMdtuv3hCM7ZxNAkgEzxdbO6jqESG5P9nvWzZYSV-o/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 3,
+          "mode": "list",
+          "cachedResultName": "Customers",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JeMdtuv3hCM7ZxNAkgEzxdbO6jqESG5P9nvWzZYSV-o/edit#gid=3"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Customer name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Customer_name', ``, 'string') }}",
+            "Customer phone": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Customer_phone', ``, 'string') }}",
+            "Channel": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Channel', ``, 'string') }}",
+            "Enquiry type": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Enquiry_type', ``, 'string') }}",
+            "Product interested in": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Product_interested_in', ``, 'string') }}",
+            "Summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}",
+            "Order number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Order_number', ``, 'string') }}",
+            "Follow-up status": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Follow-up_status', ``, 'string') }}",
+            "Handed to team": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Handed_to_team', ``, 'string') }}",
+            "Date and time": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Date_and_time', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date and time",
+              "displayName": "Date and time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer name",
+              "displayName": "Customer name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer phone",
+              "displayName": "Customer phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Channel",
+              "displayName": "Channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Enquiry type",
+              "displayName": "Enquiry type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Product interested in",
+              "displayName": "Product interested in",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Order number",
+              "displayName": "Order number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Handed to team",
+              "displayName": "Handed to team",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Follow-up status",
+              "displayName": "Follow-up status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        128
+      ],
+      "id": "b5c68834-e4e7-47a9-a15e-081a9f6cfd0d",
+      "name": "Customer data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1JeMdtuv3hCM7ZxNAkgEzxdbO6jqESG5P9nvWzZYSV-o",
+          "mode": "list",
+          "cachedResultName": "Frontals Customer Service Data (Products and Orders)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JeMdtuv3hCM7ZxNAkgEzxdbO6jqESG5P9nvWzZYSV-o/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2,
+          "mode": "list",
+          "cachedResultName": "How to use",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JeMdtuv3hCM7ZxNAkgEzxdbO6jqESG5P9nvWzZYSV-o/edit#gid=2"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        592,
+        32
+      ],
+      "id": "65a6231c-f555-4e11-ac2b-1595bf9fefb9",
+      "name": "FAQ",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get row(s) in sheet in Google Sheets",
+        "documentId": {
+          "__rl": true,
+          "value": "150r2HTYY990fAOOwwr-XIDE7dKnGWYnIJ-MIQdR7N5k",
+          "mode": "list",
+          "cachedResultName": "Frontals Products and Prices V2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/150r2HTYY990fAOOwwr-XIDE7dKnGWYnIJ-MIQdR7N5k/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1444919807,
+          "mode": "list",
+          "cachedResultName": "Untitled",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/150r2HTYY990fAOOwwr-XIDE7dKnGWYnIJ-MIQdR7N5k/edit#gid=1444919807"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        464,
+        32
+      ],
+      "id": "a3157845-0944-44d9-bd89-b6273f1f6c77",
+      "name": "Prices",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get a document in Google Docs",
+        "operation": "get",
+        "documentURL": "https://docs.google.com/document/d/1IhcdaaBFY2iy6kFDmZFCb_DK7BYmBR85h-cz68jP960/edit?tab=t.0"
+      },
+      "type": "n8n-nodes-base.googleDocsTool",
+      "typeVersion": 2,
+      "position": [
+        720,
+        -16
+      ],
+      "id": "28290d83-806a-4f5f-b5a6-9a86918f6586",
+      "name": "FAQ1",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "ZBaxFClmRqn3IYe8",
+          "name": "Google Docs account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Customer Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Customer Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Human- HAND OVER": {
+      "ai_tool": [
+        [
+          {
+            "node": "Customer Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Orders": {
+      "ai_tool": [
+        [
+          {
+            "node": "Customer Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Products": {
+      "ai_tool": [
+        [
+          {
+            "node": "Customer Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer data": {
+      "ai_tool": [
+        [
+          {
+            "node": "Customer Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FAQ": {
+      "ai_tool": [
+        [
+          {
+            "node": "Customer Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prices": {
+      "ai_tool": [
+        [
+          {
+            "node": "Customer Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FAQ1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Customer Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8b7a5334-5cc6-4644-845d-1db3e7cd604f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "093a7d81b0ce66ac8f097da66fc05b0df6e19a3a5bc1b8326bb7410c9594f7ed"
+  },
+  "nodeGroups": [],
+  "id": "21kbUdkGsM8TVGmO",
+  "tags": []
+}

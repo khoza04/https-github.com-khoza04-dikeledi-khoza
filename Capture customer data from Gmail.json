@@ -1,0 +1,251 @@
+{
+  "name": "Capture customer data from Gmail",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "q": "in:inbox category:primary",
+          "readStatus": "unread"
+        }
+      },
+      "id": "352707a9-6394-4746-ae31-05a6e613b9b9",
+      "name": "New Customer Email",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qioZPWem3FstqZ7H",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "name",
+              "name": "Name",
+              "type": "string",
+              "value": "={{ ($json.From || \"\").includes(\"<\") ? $json.From.split(\"<\")[0].replace(/\"/g, \"\").trim() : \"\" }}"
+            },
+            {
+              "id": "email",
+              "name": "Email",
+              "type": "string",
+              "value": "={{ ($json.From || \"\").includes(\"<\") ? $json.From.split(\"<\")[1].replace(\">\", \"\").trim() : ($json.From || \"\").trim() }}"
+            },
+            {
+              "id": "subject",
+              "name": "Subject",
+              "type": "string",
+              "value": "={{ $json.Subject }}"
+            },
+            {
+              "id": "message",
+              "name": "Message",
+              "type": "string",
+              "value": "={{ $json.snippet }}"
+            },
+            {
+              "id": "received",
+              "name": "Received At",
+              "type": "string",
+              "value": "={{ DateTime.fromMillis(Number($json.internalDate)).setZone(\"Africa/Johannesburg\").toFormat(\"yyyy-MM-dd HH:mm\") }}"
+            },
+            {
+              "id": "msgid",
+              "name": "Email ID",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "862b8734-8a23-44a1-8ca9-af1964f8ff86",
+      "name": "Extract Customer Details",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1KaXLlU4obu3OaomLhOkfTkKkmghRNssx9RXt5RjiONk",
+          "mode": "list",
+          "cachedResultName": "Outreachiing Clients",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KaXLlU4obu3OaomLhOkfTkKkmghRNssx9RXt5RjiONk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Received At",
+              "displayName": "Received At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email ID",
+              "displayName": "Email ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2f81aca6-dab7-40a7-b0be-b609152cfea8",
+      "name": "Save Customer to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "jUUNQDXGACkJc73o",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsRead",
+        "messageId": "={{ $(\"New Customer Email\").item.json.id }}"
+      },
+      "id": "8ec69594-31f6-4b0b-83f9-b4761e65ef05",
+      "name": "Mark Email as Read",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        0
+      ],
+      "webhookId": "b101bd61-a082-4500-92a9-298deff03617",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qioZPWem3FstqZ7H",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "New Customer Email": {
+      "main": [
+        [
+          {
+            "node": "Extract Customer Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Customer Details": {
+      "main": [
+        [
+          {
+            "node": "Save Customer to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Customer to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Mark Email as Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "c9e2a4b2-07df-4a9c-bb93-689816d151e6",
+  "meta": {
+    "instanceId": "c6d7bc4a0c4cf56ad2303905917babf85f0c70471f8a2d67a18e35df95df5c61"
+  },
+  "nodeGroups": [],
+  "id": "SKuV6MeZLjuXn2NY",
+  "tags": []
+}

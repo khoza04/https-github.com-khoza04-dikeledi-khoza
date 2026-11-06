@@ -1,0 +1,448 @@
+{
+  "name": "Label new emails and rescue from spam",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "includeSpamTrash": true,
+          "q": "in:inbox OR in:spam",
+          "readStatus": "both"
+        }
+      },
+      "id": "552b7341-1ac2-4224-ac51-73c68fa78c57",
+      "name": "New Email",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        288
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qioZPWem3FstqZ7H",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "spam",
+              "leftValue": "={{ ($json.labelIds || []).includes(\"SPAM\") }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "fe27b824-72f4-4901-85c3-d827fa611964",
+      "name": "Sent to Spam by Gmail?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "removeLabels",
+        "messageId": "={{ $(\"New Email\").item.json.id }}",
+        "labelIds": [
+          "SPAM"
+        ]
+      },
+      "id": "2bcdd76e-117c-4935-b90e-ed5f68b46eb2",
+      "name": "Remove from Spam",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        352
+      ],
+      "webhookId": "46095221-e225-4191-acb9-4b39dafa7cce",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qioZPWem3FstqZ7H",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $(\"New Email\").item.json.id }}",
+        "labelIds": [
+          "INBOX"
+        ]
+      },
+      "id": "4da2893a-db4e-49d5-8704-61b62d030991",
+      "name": "Move to Inbox",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        736,
+        352
+      ],
+      "webhookId": "00708d3c-6d66-452a-b7b4-ef87bca41e19",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qioZPWem3FstqZ7H",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ (($(\"New Email\").item.json.Subject || '') + ' ' + ($(\"New Email\").item.json.snippet || '')).toLowerCase() }}",
+                    "rightValue": "invoice|bill|payment|receipt|quotation|quote|statement|amount due|paid",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Invoice"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ (($(\"New Email\").item.json.Subject || '') + ' ' + ($(\"New Email\").item.json.snippet || '')).toLowerCase() }}",
+                    "rightValue": "follow up|follow-up|following up|reminder|checking in|any update|awaiting|chasing|still waiting",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Follow up"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ (($(\"New Email\").item.json.Subject || '') + ' ' + ($(\"New Email\").item.json.snippet || '')).toLowerCase() }}",
+                    "rightValue": "project|contract|our account|my account|deliverable|meeting|progress|update on",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Client"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ (($(\"New Email\").item.json.Subject || '') + ' ' + ($(\"New Email\").item.json.snippet || '')).toLowerCase() }}",
+                    "rightValue": "enquiry|inquiry|interested|pricing|price|question|information|help|order|services",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Customer"
+            }
+          ]
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "d2881f8c-13d3-4f7a-98e8-16e0d3cd3a00",
+      "name": "Choose Label",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $(\"New Email\").item.json.id }}",
+        "labelIds": [
+          "Label_5"
+        ]
+      },
+      "id": "8c706abb-07f4-48ed-b70e-24a0303e2fa6",
+      "name": "Label Invoice",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        384
+      ],
+      "webhookId": "6d39eb83-a999-4a52-90e0-c5a4b7db8b96",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qioZPWem3FstqZ7H",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $(\"New Email\").item.json.id }}",
+        "labelIds": [
+          "Label_4"
+        ]
+      },
+      "id": "4f875e16-00d0-4439-8376-2bdc00ea0dbe",
+      "name": "Label Follow up",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        192
+      ],
+      "webhookId": "b1925e1a-3c8a-44a4-8537-cbf66a1d0461",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qioZPWem3FstqZ7H",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $(\"New Email\").item.json.id }}",
+        "labelIds": [
+          "Label_3"
+        ]
+      },
+      "id": "7dcd1eec-0976-4776-94f0-5358d8051a13",
+      "name": "Label Client",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        0
+      ],
+      "webhookId": "87af2030-9908-43bd-a521-a0822e298ff4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qioZPWem3FstqZ7H",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $(\"New Email\").item.json.id }}",
+        "labelIds": [
+          "Label_6"
+        ]
+      },
+      "id": "6b044070-7289-4146-8721-c84520706481",
+      "name": "Label Customer",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        576
+      ],
+      "webhookId": "fe28b5b8-76f1-490e-ac7e-8951ef90720b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qioZPWem3FstqZ7H",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "New Email": {
+      "main": [
+        [
+          {
+            "node": "Sent to Spam by Gmail?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sent to Spam by Gmail?": {
+      "main": [
+        [
+          {
+            "node": "Remove from Spam",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Choose Label",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove from Spam": {
+      "main": [
+        [
+          {
+            "node": "Move to Inbox",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move to Inbox": {
+      "main": [
+        [
+          {
+            "node": "Choose Label",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Choose Label": {
+      "main": [
+        [
+          {
+            "node": "Label Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Label Follow up",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Label Client",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Label Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "46819ecb-8b09-483e-a852-c263682d4199",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c6d7bc4a0c4cf56ad2303905917babf85f0c70471f8a2d67a18e35df95df5c61"
+  },
+  "nodeGroups": [
+    {
+      "id": "74d1786e-5927-4ac7-bb20-05ada66a15ff",
+      "name": "Rescue from spam",
+      "nodeIds": [
+        "2bcdd76e-117c-4935-b90e-ed5f68b46eb2",
+        "4da2893a-db4e-49d5-8704-61b62d030991"
+      ],
+      "description": "New emails Gmail filed as spam go back to the inbox; ones you mark as spam later are never touched again"
+    },
+    {
+      "id": "7fc65483-91cf-4589-b7a8-62a14eb7c8ed",
+      "name": "Apply the right label",
+      "nodeIds": [
+        "d2881f8c-13d3-4f7a-98e8-16e0d3cd3a00",
+        "7dcd1eec-0976-4776-94f0-5358d8051a13",
+        "4f875e16-00d0-4439-8376-2bdc00ea0dbe",
+        "8c706abb-07f4-48ed-b70e-24a0303e2fa6",
+        "6b044070-7289-4146-8721-c84520706481"
+      ],
+      "description": "Keywords in the subject and preview decide the tag: Invoice, Follow up, Client or Customer. No match means no label"
+    }
+  ],
+  "id": "of3VuCIrcmPRuWFe",
+  "tags": []
+}

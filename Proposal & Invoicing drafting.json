@@ -1,0 +1,2031 @@
+{
+  "name": "Proposal & Invoicing drafting",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Project & Service Inquiry Intake",
+        "formDescription": "Thank you for your interest! Please fill out the details below so we can understand your business needs and project requirements. Once submitted, our team will review your scope and generate a customized proposal and estimate for your review. We respect your privacy and handle all data securely in accordance with professional privacy policies and accounting standards.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Timestamp",
+              "fieldType": "date"
+            },
+            {
+              "fieldLabel": "Client/Company Name"
+            },
+            {
+              "fieldLabel": "Contact number",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "Email ",
+              "fieldType": "email"
+            },
+            {
+              "fieldLabel": "Service requested",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Proposal"
+                  },
+                  {
+                    "option": "Invoice"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Project scope/notes"
+            },
+            {
+              "fieldLabel": "Estimated budget",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "Service"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2fab658c-2635-4e97-9632-d774e2879d06",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -1584,
+        -240
+      ],
+      "webhookId": "43976c56-6a48-4ef1-bf7d-5fed074270bb"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json['Service requested'] }}",
+                    "rightValue": "Proposal",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "d290af8f-35e6-456e-9797-232d19e350a6"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Proposal"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "f8ca6899-8af2-4e88-bfbf-786607109af7",
+                    "leftValue": "={{ $json['Service requested'] }}",
+                    "rightValue": "Invoice",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Invoice"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "336ef7cc-5036-4e42-b3a9-e085c21f8279",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.5,
+      "position": [
+        -1216,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You draft proposals for Dikeledi Khoza of AI Smart Solutions. Use only the form details and the Google Sheet tools. Look up the client in Clients & Leads, and the service in Services. Never invent prices, dates or results. If a detail is missing, write [to confirm]. Write in a professional but simple and clear tone, with short sentences and no jargon. Follow the structure: Introduction, Understanding your needs, What I will do, Timeline, Investment, What is not included, Next steps. Return the result as JSON with these fields: client, company, service, their_challenge, scope_of_work, timeline, investment, payment_terms.",
+        "options": {}
+      },
+      "id": "e9129592-68cd-403b-a514-da5e2ef8525d",
+      "name": "Proposal drafting",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -288,
+        -560
+      ]
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "id": "11f80317-e726-45b8-8dc9-3737f5d5fce1",
+      "name": "Groq Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        -288
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "0D7edecmR5lSmQdn",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get row(s) in sheet in Google Sheets",
+        "documentId": {
+          "__rl": true,
+          "value": "15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA",
+          "mode": "list",
+          "cachedResultName": "Invoice & Proposal Tracker - AI Smart Solutions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 203,
+          "mode": "list",
+          "cachedResultName": "Clients & Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit#gid=203"
+        },
+        "options": {}
+      },
+      "id": "55f539ed-1804-48b8-a82c-23d90b493d45",
+      "name": "Clients & Lead",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -176,
+        -288
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get row(s) in sheet in Google Sheets",
+        "documentId": {
+          "__rl": true,
+          "value": "15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA",
+          "mode": "list",
+          "cachedResultName": "Invoice & Proposal Tracker - AI Smart Solutions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 205,
+          "mode": "list",
+          "cachedResultName": "Settings",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit#gid=205"
+        },
+        "options": {}
+      },
+      "id": "7a6c170e-1e89-4397-8dad-122885192adf",
+      "name": "Settings",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        0,
+        -272
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get row(s) in sheet in Google Sheets",
+        "documentId": {
+          "__rl": true,
+          "value": "15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA",
+          "mode": "list",
+          "cachedResultName": "Invoice & Proposal Tracker - AI Smart Solutions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 204,
+          "mode": "list",
+          "cachedResultName": "Services",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit#gid=204"
+        },
+        "options": {}
+      },
+      "id": "e053f0a5-fc2b-4625-a5e5-9398d7ac53ce",
+      "name": "Services",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        192,
+        -272
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Line description"
+            },
+            {
+              "fieldLabel": "Quantity",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "Unit Price",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "Charge Vat",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "No"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Payment terms",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "from settings"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Deposit required",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes"
+                  },
+                  {
+                    "option": "No"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Notes"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4b287e1b-1e80-49f1-9757-8942bf98da96",
+      "name": "Page 2",
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        -912,
+        -112
+      ],
+      "webhookId": "29ac9b37-e2ec-4921-aa5b-052b4243ee39"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You draft invoices for Dikeledi Khoza of AI Smart Solutions. Use only the form details and the Google Sheet tools. Never invent amounts, dates or services.\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "id": "36c493e1-7548-4ca0-b7cb-5166381cd69b",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -480,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {}
+      },
+      "id": "45dacd7b-e26e-47be-b3db-ef62c985e013",
+      "name": "Groq Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        240
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "0D7edecmR5lSmQdn",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA",
+          "mode": "list",
+          "cachedResultName": "Invoice & Proposal Tracker - AI Smart Solutions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 201,
+          "mode": "list",
+          "cachedResultName": "Invoice Lines",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit#gid=201"
+        },
+        "options": {}
+      },
+      "id": "0d5ba0c9-8160-4204-bda5-1af3e249fe39",
+      "name": "Invoice lines",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -496,
+        128
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA",
+          "mode": "list",
+          "cachedResultName": "Invoice & Proposal Tracker - AI Smart Solutions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 205,
+          "mode": "list",
+          "cachedResultName": "Settings",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit#gid=205"
+        },
+        "options": {}
+      },
+      "id": "6133edb5-97a1-43fe-8305-c409564485e7",
+      "name": "Settings1",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -400,
+        240
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA",
+          "mode": "list",
+          "cachedResultName": "Invoice & Proposal Tracker - AI Smart Solutions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 122063345,
+          "mode": "list",
+          "cachedResultName": "Invoices",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit#gid=122063345"
+        },
+        "options": {}
+      },
+      "id": "6bc34a55-c5e5-42c3-870b-2c77e4fe2b27",
+      "name": "Invoices",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -304,
+        80
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"invoice_no\": \"INV-002\",\n  \"invoice_date\": \"2026-11-03\",\n  \"client_name\": \"Client Name\",\n  \"client_email\": \"client@example.com\",\n  \"billed_to\": \"Company Name\",\n  \"payment_terms\": \"14 days\",\n  \"due_date\": \"2026-11-17\",\n  \"charge_vat\": \"No\",\n  \"lines\": [\n    {\n      \"description\": \"Service description\",\n      \"qty\": 1,\n      \"unit_price\": 5000,\n      \"amount\": 5000\n    }\n  ],\n  \"subtotal\": 5000,\n  \"vat\": 0,\n  \"total\": 5000,\n  \"deposit\": 2500,\n  \"notes\": \"\"\n}"
+      },
+      "id": "0dbfd047-507d-4d27-96fb-88046a238bbd",
+      "name": "Invoice Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const o = $input.first().json.output;\nconst calc = o.lines.reduce((s, l) => s + l.qty * l.unit_price, 0);\nconst vat = o.charge_vat === 'Yes' ? calc * 0.15 : 0;\nconst total = calc + vat;\nreturn [{ json: { ...o, check_ok: Math.abs(total - o.total) < 0.01, calc_total: total } }];\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        -96
+      ],
+      "id": "953ce979-18a8-45aa-bcb2-2fb2a7677d79",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "008af9ae-8776-4b16-9eb4-cfe979538acc",
+              "leftValue": "={{ $json.check_ok }}",
+              "rightValue": "=",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        464,
+        0
+      ],
+      "id": "284c5eef-7056-4a4d-89a0-703964b1d419",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "automationspec04@gmail.com",
+        "subject": "Invoice total doesn’t match, please check",
+        "message": "=The invoice agent's total does not match the recalculated total.  Client: {{ $json.client_name }} Invoice no: {{ $json.invoice_no }} Agent total: R{{ $json.total }} Recalculated total: R{{ $json.calc_total }}  Nothing has been saved or sent. Please check the form details and run it again.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        704,
+        144
+      ],
+      "id": "b6998aa2-0f7e-4505-9e5e-baf47f49ccf3",
+      "name": "Send a message",
+      "webhookId": "7cfba966-7ad4-487a-8bf9-a978ca019b06",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cScanRl2QlV83qHe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA",
+          "mode": "list",
+          "cachedResultName": "Invoice & Proposal Tracker - AI Smart Solutions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 201,
+          "mode": "list",
+          "cachedResultName": "Invoice Lines",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit#gid=201"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {
+            "Invoice No": "={{ $('AI Agent').item.json.output.invoice_no }}",
+            "Description": "={{ $('AI Agent').item.json.output.lines[0].description }}",
+            "Qty": "={{ $('AI Agent').item.json.output.lines[0].qty }}",
+            "Unit Price": "={{ $('AI Agent').item.json.output.lines[0].unit_price }}",
+            "Amount": "={{ $('AI Agent').item.json.output.lines[0].amount }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Invoice No",
+              "displayName": "Invoice No",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Qty",
+              "displayName": "Qty",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Unit Price",
+              "displayName": "Unit Price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "invoice_no",
+              "displayName": "invoice_no",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "invoice_date",
+              "displayName": "invoice_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "client_name",
+              "displayName": "client_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "client_email",
+              "displayName": "client_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "billed_to",
+              "displayName": "billed_to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "payment_terms",
+              "displayName": "payment_terms",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "due_date",
+              "displayName": "due_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "charge_vat",
+              "displayName": "charge_vat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lines",
+              "displayName": "lines",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "subtotal",
+              "displayName": "subtotal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vat",
+              "displayName": "vat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "total",
+              "displayName": "total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "deposit",
+              "displayName": "deposit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "check_ok",
+              "displayName": "check_ok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "calc_total",
+              "displayName": "calc_total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        832,
+        -16
+      ],
+      "id": "3184ebe0-afac-47ad-900b-93d6e9c9cc87",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA",
+          "mode": "list",
+          "cachedResultName": "Invoice & Proposal Tracker - AI Smart Solutions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 203,
+          "mode": "list",
+          "cachedResultName": "Clients & Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit#gid=203"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -128,
+        112
+      ],
+      "id": "705af9c0-f45f-440a-b906-a48dca50eea3",
+      "name": "Clients & lead",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "documentId": {
+          "__rl": true,
+          "value": "1fFhoNj66500SVcBZfy54Hvl2lWtWakPNoN39P_SViKI",
+          "mode": "list",
+          "cachedResultName": "Invoice Template - AI Smart Solutions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fFhoNj66500SVcBZfy54Hvl2lWtWakPNoN39P_SViKI/edit?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1056,
+        -16
+      ],
+      "id": "b1a3172b-454d-4451-9f54-caeae8ad2e10",
+      "name": "Create sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA",
+          "mode": "list",
+          "cachedResultName": "Invoice & Proposal Tracker - AI Smart Solutions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 202,
+          "mode": "list",
+          "cachedResultName": "Proposals",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit#gid=202"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Proposal No",
+              "displayName": "Proposal No",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Client / Lead",
+              "displayName": "Client / Lead",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Contact Name",
+              "displayName": "Contact Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Service",
+              "displayName": "Service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Price List Range",
+              "displayName": "Price List Range",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Their Challenge",
+              "displayName": "Their Challenge",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Scope of Work",
+              "displayName": "Scope of Work",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timeline",
+              "displayName": "Timeline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Investment (R)",
+              "displayName": "Investment (R)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Payment Terms",
+              "displayName": "Payment Terms",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Valid Until",
+              "displayName": "Valid Until",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Draft Link",
+              "displayName": "Draft Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        -544
+      ],
+      "id": "1f79230c-4a1c-4d52-a3ee-7866e07c5ad3",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "default",
+        "title": "Proposal Template-  AI Smart Solutions"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        432,
+        -528
+      ],
+      "id": "2ac80b8b-ea6a-4ee2-8c2b-d5c8078871d9",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "ZBaxFClmRqn3IYe8",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "automationspec04@gmail.com",
+        "subject": "An action required",
+        "message": "={{ $('Proposal drafting').item.json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        640,
+        -528
+      ],
+      "id": "41ca4f1f-d373-4c8a-a0c9-6e23bdaaa994",
+      "name": "Send message and wait for response",
+      "webhookId": "57ccfa0e-ce8a-4cf0-bd58-919ab44ca4e9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cScanRl2QlV83qHe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "8e0d9707-7742-4e14-848c-2f2c83b6eba7",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "approved",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        880,
+        -448
+      ],
+      "id": "a83bf1bc-24dc-47a5-99dd-b5b51354a06a",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "https://docs.google.com/document/d/1R9hBmbRi-V1cKncVJ1ijqimntkTXJHzNpKu94TkcUmw/edit?tab=t.0",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1104,
+        -544
+      ],
+      "id": "741e18f5-2302-4a2b-af8f-667030f62466",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "c0C0ScY0kAVclIej",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "dikeledibongiwe04@gmail.com",
+        "subject": "Proposal",
+        "message": "Hi mam/sir I have attached the proposal, pls look into it. ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1376,
+        -432
+      ],
+      "id": "56cb6fec-05a0-4346-bd1f-cfa7c27891b5",
+      "name": "Send a message1",
+      "webhookId": "a670304e-e664-43af-9844-ce3c5f86cf02",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cScanRl2QlV83qHe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA",
+          "mode": "list",
+          "cachedResultName": "Invoice & Proposal Tracker - AI Smart Solutions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 202,
+          "mode": "list",
+          "cachedResultName": "Proposals",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit#gid=202"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Send"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Proposal No",
+              "displayName": "Proposal No",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Client / Lead",
+              "displayName": "Client / Lead",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Contact Name",
+              "displayName": "Contact Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Service",
+              "displayName": "Service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Price List Range",
+              "displayName": "Price List Range",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Their Challenge",
+              "displayName": "Their Challenge",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Scope of Work",
+              "displayName": "Scope of Work",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Timeline",
+              "displayName": "Timeline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Investment (R)",
+              "displayName": "Investment (R)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Payment Terms",
+              "displayName": "Payment Terms",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Valid Until",
+              "displayName": "Valid Until",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Draft Link",
+              "displayName": "Draft Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1552,
+        -544
+      ],
+      "id": "9719bec4-76a5-46e7-87a8-414722f87f70",
+      "name": "Append row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit?gid=122063345#gid=122063345",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1200,
+        160
+      ],
+      "id": "42742720-ec3b-4352-8976-414aebbb4e6a",
+      "name": "Download file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "c0C0ScY0kAVclIej",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA",
+          "mode": "list",
+          "cachedResultName": "Invoice & Proposal Tracker - AI Smart Solutions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 122063345,
+          "mode": "list",
+          "cachedResultName": "Invoices",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15ZVogr_fP2WNpoBGk1TrKp3DSP2lUsemulJxLvo4IsA/edit#gid=122063345"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Send"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Invoice No",
+              "displayName": "Invoice No",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Invoice Date",
+              "displayName": "Invoice Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Client Name",
+              "displayName": "Client Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Client Email",
+              "displayName": "Client Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Billed To",
+              "displayName": "Billed To",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Payment Terms",
+              "displayName": "Payment Terms",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Due Date",
+              "displayName": "Due Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Charge VAT?",
+              "displayName": "Charge VAT?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Subtotal",
+              "displayName": "Subtotal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "VAT",
+              "displayName": "VAT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Total",
+              "displayName": "Total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Deposit",
+              "displayName": "Deposit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Draft Link",
+              "displayName": "Draft Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Client/Company Name",
+              "displayName": "Client/Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Contact number",
+              "displayName": "Contact number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email ",
+              "displayName": "Email ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Service requested",
+              "displayName": "Service requested",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Project scope/notes",
+              "displayName": "Project scope/notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Estimated budget",
+              "displayName": "Estimated budget",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "submittedAt",
+              "displayName": "submittedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "formMode",
+              "displayName": "formMode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "output",
+              "displayName": "output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1760,
+        32
+      ],
+      "id": "28058715-857e-4318-ab20-4439148eee37",
+      "name": "Append row in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i804u18xrDMx8Rfk",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Proposal drafting",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Page 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Proposal drafting",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clients & Lead": {
+      "ai_tool": [
+        [
+          {
+            "node": "Proposal drafting",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "ai_tool": [
+        [
+          {
+            "node": "Proposal drafting",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Services": {
+      "ai_tool": [
+        [
+          {
+            "node": "Proposal drafting",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Page 2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoice lines": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoices": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoice Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Proposal drafting": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Create sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clients & lead": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append row in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create sheet": {
+      "main": [
+        [
+          {
+            "node": "Download file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file1": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f9e87d4e-8718-4127-b040-b73d8d39cc5a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "093a7d81b0ce66ac8f097da66fc05b0df6e19a3a5bc1b8326bb7410c9594f7ed"
+  },
+  "nodeGroups": [],
+  "id": "aeMGKLXCzdpApq3Q",
+  "tags": []
+}
